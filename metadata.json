@@ -1,0 +1,6 @@
+{
+  "name": "Endless Sunset Highway",
+  "description": "An atmospheric sunset expressway driving experience featuring sweeping curves, highly detailed architectural buildings with safe setbacks, authentic road materials, cinematic lighting, and responsive audio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

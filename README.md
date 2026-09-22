@@ -1,11 +1,91 @@
-<div align="center">
+# Endless Sunset Highway (エンドレス・サンセット・ハイウェイ)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+首都高や湾岸線を彷彿とさせる、夕暮れの都市高速道路を駆け抜ける3Dドライビング・シミュレーションです。
+リアルタイムWebGL（Three.js）によるカーブ路面生成、精巧なビル構造・街並み、実車の挙動と車内・車外の視点切り替え、レトロシンセのエンジンサウンドを備えています。
 
-  <h1>Built with AI Studio</h2>
+---
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## 🚀 ローカル環境での起動方法 (Quick Start)
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+### 1. 必要環境 (Prerequisites)
+- **Node.js**: v18.0.0 以上（v20 推奨）
+- **npm** または **pnpm** / **yarn** / **bun**
 
-</div>
+### 2. インストール手順
+
+リポジトリのルートディレクトリで以下のコマンドを実行します：
+
+```bash
+# 依存パッケージのインストール
+npm install
+```
+
+### 3. 開発サーバーの起動
+
+```bash
+npm run dev
+```
+
+起動後、ターミナルに表示されるローカルURL（通常は `http://localhost:3000` または `http://localhost:5173`）をブラウザで開いてください。
+
+### 4. プロダクションビルド（本番用）
+
+```bash
+npm run build
+npm run preview
+```
+
+---
+
+## 🎮 操作方法 (Controls)
+
+| 操作 | キーボード | タッチ操作 (スマホ/タブレット) |
+| :--- | :--- | :--- |
+| **ステアリング（操舵）** | `A` / `D` または `←` / `→` | 画面の左半分 / 右半分をタップ・ホールド |
+| **アクセル（加速）** | `W` または `↑` | （自動巡航 + 前進） |
+| **ブレーキ（減速）** | `S` または `↓` | - |
+| **視点切り替え (Camera)** | **`C`** または **`V`** | 画面右下の **カメラボタン** をタップ |
+| **視点ダイレクト指定** | **`1`** (追従) / **`2`** (運転席) / **`3`** (ボンネット) | HUD中央の視点セレクター（CHASE / COCKPIT / HOOD） |
+| **サウンド消音/再生** | 画面右下のスピーカーボタン | 画面右下のスピーカーボタン |
+
+---
+
+## 🎥 3つのカメラ視点
+
+1. **CHASE CAM（三人称追従視点）** [キー: 1 または C]
+   - スポーツクーペの後方から車体全体とハイウェイを見渡すスタンダード視点。
+   - コーナリング時のロールやドリフト挙動、テールランプの光をダイナミックに楽しめます。
+
+2. **COCKPIT VIEW（運転席車内視点）** [キー: 2 または C]
+   - ドライバー目線でステアリングを握り、フロントガラス越しに迫り来る夕日と夜景を眺める没入視点。
+   - ステアリングハンドルの回転、スピードメーター・タコメーターの針の可動、ダッシュボードのバックライトが連動します。
+
+3. **HOOD CAM（前方ノーズ・ボンネット視点）** [キー: 3 または C]
+   - フロントバンパー先端の低位置カメラ。アスファルトの質感と路面ペイント、対向車線の街灯が高速で流れ、最もスピード感と迫力があります。
+
+---
+
+## ❓ Google API（Gemini API）が必要とされる理由について
+
+### 結論: **ローカルでゲームを遊ぶだけなら、Google APIは一切不要です！**
+
+本プロジェクトの `.env.example` や `package.json` に `@google/genai` や `GEMINI_API_KEY` が含まれているのは、本アプリケーションが **Google AI Studio** の開発環境上で作成されたためです。
+
+- **AI Studioの標準テンプレート仕様**:
+  Google AI Studioでは、生成AIを活用した機能拡張（例: AI実況ラジオ、助手席のAIキャラクター会話、動的なストーリー生成など）をいつでも追加できるように、初期テンプレートに `@google/genai` SDKと環境変数定義が標準で組み込まれています。
+
+- **ゲーム自体の独立性**:
+  3Dグラフィックス（Three.js WebGL）、滑らかなカーブ生成数学、スポーツカーの物理挙動、リアルタイムWeb Audioシンセサイザーは**100%クライアントサイド（ブラウザ内）のTypeScriptコードのみで完結**しています。
+
+そのため、ローカル起動時に `GEMINI_API_KEY` を設定しなくても、エラーなく完全な機能でプレイ可能です。
+もし将来的に「走行中にGeminiが首都高の案内をしてくれるAIナビ機能」などを追加したい場合にのみ、APIキーを活用できます。
+
+---
+
+## 🛠 技術スタック (Tech Stack)
+
+- **3D Graphics Engine**: Three.js (WebGL) + Procedural Highway Spline
+- **Framework**: React 19 + TypeScript + Vite
+- **Styling**: Tailwind CSS + Custom Post-processing Filters (Chromatic Aberration & Screen Bloom)
+- **Audio**: Web Audio API (FM/Subtractive Engine Sound Synthesizer)
+- **Icons**: Lucide React
