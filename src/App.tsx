@@ -5,7 +5,6 @@ import { Volume2, VolumeX, Compass, Gauge, Camera } from 'lucide-react';
 
 const CAMERA_LABELS: Record<CameraViewMode, { en: string; jp: string }> = {
   chase: { en: 'CHASE CAM', jp: '三人称追従' },
-  cockpit: { en: 'COCKPIT', jp: '運転席車内' },
   hood: { en: 'HOOD CAM', jp: '前方ノーズ' },
 };
 
@@ -110,13 +109,6 @@ export default function App() {
         return;
       }
       if (e.code === 'Digit2') {
-        e.preventDefault();
-        engine.setCameraMode('cockpit');
-        setCameraModeState('cockpit');
-        showCameraToastNotification('cockpit');
-        return;
-      }
-      if (e.code === 'Digit3') {
         e.preventDefault();
         engine.setCameraMode('hood');
         setCameraModeState('hood');
@@ -313,7 +305,7 @@ export default function App() {
             <button
               id="camBtnChase"
               onClick={() => selectCamera('chase')}
-              className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
                 cameraMode === 'chase'
                   ? 'bg-[#f5a456]/25 border border-[#f5a456]/60 text-[#ffeacc] font-medium'
                   : 'text-[#f4e6c9]/60 hover:text-[#f4e6c9]'
@@ -323,28 +315,16 @@ export default function App() {
               CHASE [1]
             </button>
             <button
-              id="camBtnCockpit"
-              onClick={() => selectCamera('cockpit')}
-              className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                cameraMode === 'cockpit'
-                  ? 'bg-[#f5a456]/25 border border-[#f5a456]/60 text-[#ffeacc] font-medium'
-                  : 'text-[#f4e6c9]/60 hover:text-[#f4e6c9]'
-              }`}
-              title="Cockpit View (Press 2 or C)"
-            >
-              COCKPIT [2]
-            </button>
-            <button
               id="camBtnHood"
               onClick={() => selectCamera('hood')}
-              className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-full transition-all cursor-pointer ${
                 cameraMode === 'hood'
                   ? 'bg-[#f5a456]/25 border border-[#f5a456]/60 text-[#ffeacc] font-medium'
                   : 'text-[#f4e6c9]/60 hover:text-[#f4e6c9]'
               }`}
-              title="Hood Camera (Press 3 or C)"
+              title="Hood Camera (Press 2 or C)"
             >
-              HOOD [3]
+              HOOD [2]
             </button>
           </div>
 

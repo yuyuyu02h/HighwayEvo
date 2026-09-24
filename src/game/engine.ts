@@ -254,7 +254,7 @@ export class HighwayGameEngine {
   }
 
   public cycleCameraMode(): CameraViewMode {
-    const modes: CameraViewMode[] = ['chase', 'cockpit', 'hood'];
+    const modes: CameraViewMode[] = ['chase', 'hood'];
     const idx = modes.indexOf(this.cameraMode);
     this.cameraMode = modes[(idx + 1) % modes.length];
     this.state.cameraMode = this.cameraMode;
@@ -356,23 +356,6 @@ export class HighwayGameEngine {
       targetLookY = carY + 0.95;
       targetLookZ = carZ - lookDist * cosH;
       lerpSpeed = 0.18;
-    } else if (this.cameraMode === 'cockpit') {
-      // First-Person Cockpit View (Sitting inside behind the steering wheel)
-      const driverSideOffset = -0.35;
-      const headHeight = 1.18;
-      const seatZ = 0.08;
-
-      targetCamX = carX + driverSideOffset * perpX + seatZ * sinH;
-      targetCamY = carY + headHeight + suspensionBob * 0.6;
-      targetCamZ = carZ + driverSideOffset * perpZ + seatZ * cosH;
-
-      // Look forward through the windshield with subtle look-into-corner
-      const lookDist = 20.0;
-      const lookLead = roadPath.curvature * 6.0;
-      targetLookX = carX + (driverSideOffset + lookLead) * perpX - lookDist * sinH;
-      targetLookY = carY + 1.12;
-      targetLookZ = carZ + (driverSideOffset + lookLead) * perpZ - lookDist * cosH;
-      lerpSpeed = 0.35;
     } else {
       // Front Hood / Bumper View (Nose-mounted low camera for intense speed)
       const hoodForward = 1.65;

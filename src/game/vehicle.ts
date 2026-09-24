@@ -288,21 +288,6 @@ export class HighwayVehicle {
       glassCover.rotation.y = hx > 0 ? -0.15 : 0.15;
       this.group.add(glassCover);
       this.exteriorParts.push(glassCover);
-
-      // Forward Headlight Light Beam Cone (Projected onto highway asphalt)
-      const beamGeo = new THREE.ConeGeometry(2.2, 18, 16, 1, true);
-      beamGeo.rotateX(-Math.PI / 2);
-      const beamMat = new THREE.MeshBasicMaterial({
-        color: 0xffe2a3,
-        transparent: true,
-        opacity: 0.14,
-        depthWrite: false,
-        side: THREE.DoubleSide,
-      });
-      const beam = new THREE.Mesh(beamGeo, beamMat);
-      beam.position.set(hx, 0.48, -11.2);
-      this.group.add(beam);
-      this.exteriorParts.push(beam);
     });
 
     // ==========================================
@@ -965,8 +950,6 @@ export class HighwayVehicle {
    */
   public setViewMode(mode: CameraViewMode): void {
     if (mode === 'hood') {
-      this.chassisMesh.visible = true;
-    } else if (mode === 'cockpit') {
       this.chassisMesh.visible = true;
     } else {
       this.chassisMesh.visible = true;

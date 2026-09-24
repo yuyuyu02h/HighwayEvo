@@ -1,4 +1,4 @@
-export type CameraViewMode = 'chase' | 'cockpit' | 'hood';
+export type CameraViewMode = 'chase' | 'hood';
 
 export interface GameInput {
   steer: number;     // -1 (left) to +1 (right)
