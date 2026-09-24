@@ -5,6 +5,7 @@ import {
   getHighwayOverheadSignTexture,
   getHighwayLedMatrixTexture,
   getPavementMarkerTexture,
+  getNoiseBarrierPanelTexture,
 } from './textures';
 
 export const ROAD_WIDTH = 13;
@@ -298,6 +299,72 @@ export function buildCurvedRoad(group: THREE.Group, absIndex: number): void {
     );
     group.add(girder);
   });
+
+  // 8. Viaduct Expansion Joint Comb Plate (Segment Connection Seam)
+  const seamPath = getHighwayPath(absIndex * SEGMENT_LENGTH);
+  const seamGeo = new THREE.BoxGeometry(ROAD_WIDTH, 0.02, 0.42);
+  const seamMat = new THREE.MeshStandardMaterial({
+    color: 0x38393d,
+    metalness: 0.85,
+    roughness: 0.35,
+  });
+  const seamMesh = new THREE.Mesh(seamGeo, seamMat);
+  seamMesh.position.set(seamPath.x, 0.025, -1.0);
+  seamMesh.rotation.y = -seamPath.angle;
+  group.add(seamMesh);
+
+  // 9. Iconic Shuto Expressway Acoustic Noise Barrier Panels
+  // Placed along one side or curves to give authentic elevated urban highway aesthetic
+  const barrierSide = absIndex % 2 === 0 ? 1 : -1;
+  const barrierLat = barrierSide * (LANE_HALF + 1.1);
+  const barrierH = 2.8;
+  const barrierPostSpacing = 4.0;
+  const barrierTex = getNoiseBarrierPanelTexture();
+  const barrierPanelMat = new THREE.MeshStandardMaterial({
+    map: barrierTex,
+    roughness: 0.25,
+    metalness: 0.3,
+    transparent: true,
+    opacity: 0.9,
+  });
+
+  for (let z = -2; z > -SEGMENT_LENGTH + 4; z -= barrierPostSpacing) {
+    const worldD = absIndex * SEGMENT_LENGTH + (-z);
+    const path = getHighwayPath(worldD);
+    const nx = Math.cos(path.angle);
+    const nz = Math.sin(path.angle);
+
+    const px = path.x + barrierLat * nx;
+    const pz = z + barrierLat * nz;
+
+    // Heavy green steel H-beam upright
+    const hBeam = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, barrierH, 0.18),
+      new THREE.MeshStandardMaterial({ color: 0x244238, roughness: 0.4, metalness: 0.6 })
+    );
+    hBeam.position.set(px, barrierH / 2, pz);
+    hBeam.rotation.y = -path.angle;
+    group.add(hBeam);
+
+    // Acoustic acrylic panel spanning to next post
+    const panel = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, barrierH * 0.85, barrierPostSpacing - 0.2),
+      barrierPanelMat
+    );
+    panel.position.set(px, barrierH * 0.48, pz - barrierPostSpacing / 2);
+    panel.rotation.y = -path.angle;
+    group.add(panel);
+
+    // Curved top overhang baffle
+    const baffle = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5, 0.06, barrierPostSpacing),
+      new THREE.MeshStandardMaterial({ color: 0x1f3830, roughness: 0.4, metalness: 0.5 })
+    );
+    baffle.position.set(px - barrierSide * 0.2, barrierH + 0.1, pz - barrierPostSpacing / 2);
+    baffle.rotation.y = -path.angle;
+    baffle.rotation.z = -barrierSide * 0.45;
+    group.add(baffle);
+  }
 }
 
 /**
@@ -362,6 +429,40 @@ export function createHighwayGantry(
     lightFixture.position.set(-2.2 + i * 1.8, clearH + 1.8, 0.8);
     gantry.add(lightFixture);
   }
+
+  // Lane Control Signals: Glowing Green Down-Arrows above each driving lane
+  [-LANE_HALF * 0.5, LANE_HALF * 0.5].forEach((laneX) => {
+    const signalBox = new THREE.Mesh(
+      new THREE.BoxGeometry(0.8, 0.8, 0.25),
+      steelPostMat
+    );
+    signalBox.position.set(laneX, clearH - 0.7, 0.2);
+    gantry.add(signalBox);
+
+    // Green illuminated arrow face
+    const arrowFace = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.65, 0.65),
+      new THREE.MeshBasicMaterial({ color: 0x00e676, side: THREE.DoubleSide })
+    );
+    arrowFace.position.set(laneX, clearH - 0.7, 0.34);
+    gantry.add(arrowFace);
+  });
+
+  // Circular Japanese Highway Speed Limit Sign (80 km/h)
+  const speedSign = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.65, 0.65, 0.08, 24),
+    new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 })
+  );
+  speedSign.rotation.x = Math.PI / 2;
+  speedSign.position.set(spanW / 2 - 0.9, clearH + 1.5, 0.35);
+  gantry.add(speedSign);
+
+  const speedRing = new THREE.Mesh(
+    new THREE.RingGeometry(0.52, 0.64, 24),
+    new THREE.MeshBasicMaterial({ color: 0xd50000, side: THREE.DoubleSide })
+  );
+  speedRing.position.set(spanW / 2 - 0.9, clearH + 1.5, 0.4);
+  gantry.add(speedRing);
 
   return gantry;
 }

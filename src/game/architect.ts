@@ -7,6 +7,7 @@ import {
   getIndustrialFacadeTexture,
   getConcreteTexture,
   getVendingMachineTexture,
+  getRooftopNeonSignTexture,
 } from './textures';
 
 // Shared materials and geometries for optimal performance
@@ -230,6 +231,66 @@ export function createRooftopInfrastructure(
     group.add(crossBar);
   }
 
+  // 7. Rooftop Window-Washing Maintenance Crane (BMU)
+  if (height > 35 && Math.random() < 0.6) {
+    const bmuBase = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.6, 1.4), metalMat);
+    bmuBase.position.set(baseX + (Math.random() - 0.5) * (width * 0.4), height + 0.3, baseZ + (Math.random() - 0.5) * (depth * 0.4));
+    group.add(bmuBase);
+
+    // Boom arm
+    const boomH = 4.5;
+    const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, boomH, 8), metalMat);
+    boom.rotation.z = 0.55;
+    boom.position.set(bmuBase.position.x + 1.2, height + 0.6 + boomH * 0.4, bmuBase.position.z);
+    group.add(boom);
+
+    // Counterweight
+    const counterweight = new THREE.Mesh(
+      new THREE.BoxGeometry(0.6, 0.5, 0.5),
+      new THREE.MeshStandardMaterial({ color: 0xffcc00 })
+    );
+    counterweight.position.set(bmuBase.position.x - 0.6, height + 0.7, bmuBase.position.z);
+    group.add(counterweight);
+  }
+
+  // 8. Rooftop Japanese Corporate Neon Signboard with Steel Truss Scaffolding
+  if (width > 12 && (height > 25 || Math.random() < 0.55)) {
+    const brands = [
+      { k: '湾岸興産', e: 'WANGAN CORP', c1: '#ff9800', c2: '#00e5ff' },
+      { k: '東京電子', e: 'TOKYO ELECTRON', c1: '#00e5ff', c2: '#ffeb3b' },
+      { k: '大森港運', e: 'OMORI LOGISTICS', c1: '#ff3d00', c2: '#ffea00' },
+      { k: '三井信託', e: 'MITSUI TRUST', c1: '#ffa726', c2: '#69f0ae' },
+      { k: '日本精密', e: 'NIPPON PRECISION', c1: '#00e5ff', c2: '#ff1744' },
+      { k: 'ベイフロント', e: 'BAYFRONT TOWER', c1: '#ff4081', c2: '#00e5ff' },
+    ];
+    const brand = brands[Math.floor(Math.random() * brands.length)];
+    const signTex = getRooftopNeonSignTexture(brand.k, brand.e, brand.c1, brand.c2);
+
+    const signW = Math.min(width * 0.75, 14);
+    const signH = signW * 0.45;
+    const signMat = new THREE.MeshBasicMaterial({ map: signTex, fog: true });
+
+    const signBoard = new THREE.Mesh(new THREE.BoxGeometry(signW, signH, 0.2), signMat);
+    const sZ = baseZ + depth * 0.35;
+    signBoard.position.set(baseX, height + 1.2 + signH / 2, sZ);
+    group.add(signBoard);
+
+    // Steel lattice support scaffolding struts
+    const trussMat = new THREE.MeshStandardMaterial({ color: 0x3d3834, metalness: 0.7, roughness: 0.4 });
+    [-signW * 0.4, 0, signW * 0.4].forEach((tx) => {
+      // Vertical back legs
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.15, signH + 1.2, 0.15), trussMat);
+      leg.position.set(baseX + tx, height + (signH + 1.2) / 2, sZ - 0.2);
+      group.add(leg);
+
+      // Diagonal rear kickers
+      const kicker = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, signH * 1.3, 6), trussMat);
+      kicker.rotation.x = -0.55;
+      kicker.position.set(baseX + tx, height + signH * 0.45, sZ - 1.2);
+      group.add(kicker);
+    });
+  }
+
   return group;
 }
 
@@ -382,6 +443,21 @@ export function buildDetailedBuilding(
   tower.position.set(0, podiumH + towerH / 2, 0);
   group.add(tower);
 
+  // Vertical Architectural Corner LED Fin Accent Strips (Tokyo Dusk Skyline glow)
+  if ((district.name === 'commercial' || district.name === 'downtown') && h > 28) {
+    const ledColor = Math.random() < 0.65 ? 0xffa726 : 0x00e5ff;
+    const finMat = new THREE.MeshBasicMaterial({ color: ledColor, fog: true });
+    const finGeo = new THREE.BoxGeometry(0.2, towerH, 0.2);
+
+    [-1, 1].forEach((cx) => {
+      [-1, 1].forEach((cz) => {
+        const fin = new THREE.Mesh(finGeo, finMat);
+        fin.position.set(cx * (towerW / 2 + 0.05), podiumH + towerH / 2, cz * (towerD / 2 + 0.05));
+        group.add(fin);
+      });
+    });
+  }
+
   let finalTopY = podiumH + towerH;
   let finalTopW = towerW;
   let finalTopD = towerD;
@@ -493,6 +569,50 @@ export function buildDetailedBuilding(
     glowPool.rotation.x = -Math.PI / 2;
     glowPool.position.set(vm.position.x - side * 0.8, 0.02, vm.position.z);
     group.add(glowPool);
+  }
+
+  // 8. Street-Level 24h Japanese Convenience Store (Combini) Storefront
+  if (Math.random() < 0.38) {
+    const storeW = 8.5;
+    const storeH = 3.2;
+    const storeD = 0.4;
+    const storeX = -side * (podiumW / 2 + 0.2);
+    const storeZ = (Math.random() - 0.5) * (podiumD * 0.4);
+
+    // Glowing Convenience Store Brand Fascia Header (Lawson / FamilyMart aesthetic)
+    const brandColor = Math.random() < 0.5 ? 0x00b0ff : 0x00e676;
+    const fascia = new THREE.Mesh(
+      new THREE.BoxGeometry(0.15, 0.7, storeW),
+      new THREE.MeshBasicMaterial({ color: brandColor, fog: false })
+    );
+    fascia.position.set(storeX, storeH - 0.35, storeZ);
+    group.add(fascia);
+
+    // Illuminated glass front with warm interior merchandise shelves
+    const storeWindow = new THREE.Mesh(
+      new THREE.BoxGeometry(0.1, storeH - 0.8, storeW - 0.4),
+      new THREE.MeshBasicMaterial({
+        color: 0xfffaed,
+        transparent: true,
+        opacity: 0.88,
+      })
+    );
+    storeWindow.position.set(storeX, (storeH - 0.8) / 2, storeZ);
+    group.add(storeWindow);
+
+    // Warm sidewalk light spill
+    const storeSpill = new THREE.Mesh(
+      new THREE.PlaneGeometry(4.0, storeW),
+      new THREE.MeshBasicMaterial({
+        color: 0xffeedd,
+        transparent: true,
+        opacity: 0.22,
+        depthWrite: false,
+      })
+    );
+    storeSpill.rotation.x = -Math.PI / 2;
+    storeSpill.position.set(storeX - side * 2.0, 0.03, storeZ);
+    group.add(storeSpill);
   }
 
   return {

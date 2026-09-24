@@ -20,6 +20,17 @@
 npm install
 ```
 
+> **※ もし `npm install` 時に `ERESOLVE could not resolve` (peer dependency conflict) が発生する場合**
+> 最新の `package.json` に更新されていることを確認するか、以下のいずれかで解決できます：
+> ```bash
+> # 推奨: 競合する古いキャッシュやlockファイルを削除して再インストール
+> rm -rf node_modules package-lock.json
+> npm install
+> 
+> # または peer dependency の自動解決を許容
+> npm install --legacy-peer-deps
+> ```
+
 ### 3. 開発サーバーの起動
 
 ```bash

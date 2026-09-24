@@ -198,12 +198,136 @@ export function createSkySystem(): SkySystem {
     skyGroup.add(new THREE.Mesh(geo, mountainMat));
   });
 
+  // 4b. Iconic Mt. Fuji Silhouette on the sunset horizon
+  const fujiGeo = new THREE.BufferGeometry();
+  const fujiPos: number[] = [];
+  const fujiSegments = 40;
+  const fujiW = 420;
+  const fujiH = 145;
+  const fujiCX = -130;
+  const fujiZ = -1180;
+
+  for (let i = 0; i < fujiSegments; i++) {
+    const t1 = (i / fujiSegments) * 2 - 1; // -1 to 1
+    const t2 = ((i + 1) / fujiSegments) * 2 - 1;
+
+    const x1 = fujiCX + t1 * (fujiW / 2);
+    const x2 = fujiCX + t2 * (fujiW / 2);
+
+    // Iconic concave volcanic slope curve: y = H * (1 - |t|^1.4)
+    const y1 = Math.max(0, fujiH * (1 - Math.pow(Math.abs(t1), 1.35)));
+    const y2 = Math.max(0, fujiH * (1 - Math.pow(Math.abs(t2), 1.35)));
+
+    fujiPos.push(x1, 0, fujiZ,  x1, y1, fujiZ,  x2, y2, fujiZ);
+    fujiPos.push(x1, 0, fujiZ,  x2, y2, fujiZ,  x2, 0, fujiZ);
+  }
+  fujiGeo.setAttribute('position', new THREE.Float32BufferAttribute(fujiPos, 3));
+  const fujiMat = new THREE.MeshBasicMaterial({
+    color: 0x22172a,
+    fog: false,
+    depthWrite: false,
+  });
+  skyGroup.add(new THREE.Mesh(fujiGeo, fujiMat));
+
+  // Snow-capped summit crown glowing softly in twilight
+  const snowGeo = new THREE.BufferGeometry();
+  const snowPos: number[] = [];
+  for (let i = 0; i < fujiSegments; i++) {
+    const t1 = (i / fujiSegments) * 2 - 1;
+    const t2 = ((i + 1) / fujiSegments) * 2 - 1;
+    if (Math.abs(t1) < 0.28 && Math.abs(t2) < 0.28) {
+      const x1 = fujiCX + t1 * (fujiW / 2);
+      const x2 = fujiCX + t2 * (fujiW / 2);
+      const y1 = Math.max(0, fujiH * (1 - Math.pow(Math.abs(t1), 1.35)));
+      const y2 = Math.max(0, fujiH * (1 - Math.pow(Math.abs(t2), 1.35)));
+      const snowBase = fujiH * 0.72;
+
+      snowPos.push(x1, snowBase, fujiZ + 1,  x1, y1, fujiZ + 1,  x2, y2, fujiZ + 1);
+      snowPos.push(x1, snowBase, fujiZ + 1,  x2, y2, fujiZ + 1,  x2, snowBase, fujiZ + 1);
+    }
+  }
+  snowGeo.setAttribute('position', new THREE.Float32BufferAttribute(snowPos, 3));
+  const snowMat = new THREE.MeshBasicMaterial({
+    color: 0xe09b82, // Rose-gold dusk snowglow
+    fog: false,
+    depthWrite: false,
+  });
+  skyGroup.add(new THREE.Mesh(snowGeo, snowMat));
+
+  // 4c. Tokyo Bay Industrial Harbor Container Cranes & Suspension Bridge Towers
+  const beacons: { mesh: THREE.Mesh; phase: number }[] = [];
+  const harborGroup = new THREE.Group();
+  const harborMat = new THREE.MeshBasicMaterial({ color: 0x241d2d, fog: false });
+  const hazardRedMat = new THREE.MeshBasicMaterial({ color: 0xff3b30, fog: false });
+
+  // 3 Gantry Container Cranes
+  const cranePositions = [
+    { x: 380, z: -880, scale: 1.0 },
+    { x: 440, z: -920, scale: 0.9 },
+    { x: 500, z: -950, scale: 0.8 },
+  ];
+
+  cranePositions.forEach(({ x, z, scale }) => {
+    const cH = 58 * scale;
+    const cW = 22 * scale;
+    // Left & right A-frame legs
+    const legL = new THREE.Mesh(new THREE.BoxGeometry(1.6 * scale, cH, 1.6 * scale), harborMat);
+    legL.position.set(x - cW / 2, cH / 2, z);
+    legL.rotation.z = -0.12;
+    harborGroup.add(legL);
+
+    const legR = new THREE.Mesh(new THREE.BoxGeometry(1.6 * scale, cH, 1.6 * scale), harborMat);
+    legR.position.set(x + cW / 2, cH / 2, z);
+    legR.rotation.z = 0.12;
+    harborGroup.add(legR);
+
+    // Cantilever boom projecting over water
+    const boom = new THREE.Mesh(new THREE.BoxGeometry(65 * scale, 2.2 * scale, 2.2 * scale), harborMat);
+    boom.position.set(x + 12 * scale, cH * 0.78, z);
+    harborGroup.add(boom);
+
+    // Crane peak red obstruction beacon
+    const craneBeacon = new THREE.Mesh(new THREE.BoxGeometry(1.8 * scale, 1.8 * scale, 1.8 * scale), hazardRedMat.clone());
+    craneBeacon.position.set(x, cH + 2 * scale, z);
+    harborGroup.add(craneBeacon);
+    beacons.push({ mesh: craneBeacon, phase: Math.random() * Math.PI * 2 });
+  });
+
+  // Tokyo Bay Suspension Bridge Towers (Rainbow Bridge / Yokohama Bay Bridge style)
+  [-320, -210].forEach((bx) => {
+    const bH = 88;
+    const bZ = -1020;
+    // Dual tower columns
+    const colL = new THREE.Mesh(new THREE.BoxGeometry(2.4, bH, 2.4), harborMat);
+    colL.position.set(bx - 12, bH / 2, bZ);
+    harborGroup.add(colL);
+
+    const colR = new THREE.Mesh(new THREE.BoxGeometry(2.4, bH, 2.4), harborMat);
+    colR.position.set(bx + 12, bH / 2, bZ);
+    harborGroup.add(colR);
+
+    // Cross-struts
+    const strut1 = new THREE.Mesh(new THREE.BoxGeometry(26, 2.0, 1.8), harborMat);
+    strut1.position.set(bx, bH * 0.5, bZ);
+    harborGroup.add(strut1);
+
+    const strut2 = new THREE.Mesh(new THREE.BoxGeometry(26, 2.0, 1.8), harborMat);
+    strut2.position.set(bx, bH * 0.92, bZ);
+    harborGroup.add(strut2);
+
+    // Red aviation beacon
+    const bBeacon = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.2, 2.2), hazardRedMat.clone());
+    bBeacon.position.set(bx, bH + 2, bZ);
+    harborGroup.add(bBeacon);
+    beacons.push({ mesh: bBeacon, phase: Math.random() * Math.PI * 2 });
+  });
+
+  skyGroup.add(harborGroup);
+
   // 5. Far Distant Metropolis Silhouette Towers with Aircraft Warning Lights
   const distantSkylineGroup = new THREE.Group();
   const distantMat = new THREE.MeshBasicMaterial({ color: 0x1d1724, fog: false });
   const beaconMat = new THREE.MeshBasicMaterial({ color: 0xff3b30, fog: false });
-
-  const beacons: { mesh: THREE.Mesh; phase: number }[] = [];
 
   for (let i = 0; i < 48; i++) {
     const w = 12 + Math.random() * 26;
